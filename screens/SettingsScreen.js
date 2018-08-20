@@ -1,17 +1,26 @@
 import React from 'react';
-import { StyleSheet, View, FlatList, Text } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  FlatList,
+  Text,
+  TouchableOpacity,
+} from 'react-native';
 import { Constants } from 'expo';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 class SettingsScreen extends React.Component {
-  static navigationOptions = {
-    tabBarIcon: ({ focused, tintColor }) => (
-      <Ionicons
-        name={`ios-settings${focused ? '' : '-outline'}`}
-        size={25}
-        color={tintColor}
-      />
-    ),
+  static navigationOptions = ({ navigation }) => {
+    return {
+      headerTitle: 'Settings',
+      tabBarIcon: ({ focused, tintColor }) => (
+        <Ionicons
+          name={`ios-settings${focused ? '' : '-outline'}`}
+          size={25}
+          color={tintColor}
+        />
+      ),
+    };
   };
   state = {
     distenation: '',
@@ -21,7 +30,14 @@ class SettingsScreen extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <Text>Settings</Text>
+        <TouchableOpacity
+          onPress={() => this.props.navigation.navigate('destination')}>
+          <Text>Destination</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => this.props.navigation.navigate('notification')}>
+          <Text>Notification</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -32,8 +48,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     paddingTop: Constants.statusBarHeight,
-    marginVertical: 20,
-    marginHorizontal: 20,
   },
 });
 

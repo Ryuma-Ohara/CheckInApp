@@ -1,7 +1,13 @@
 import React from 'react';
 import { StyleSheet, View, Button, TouchableOpacity, Text } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 class CheckOutScreen extends React.Component {
+  static navigationOptions = {
+    tabBarIcon: ({ focused, tintColor }) => (
+      <Ionicons name={'ios-checkbox'} size={25} color={tintColor} />
+    ),
+  };
   render() {
     return (
       <View style={styles.container}>
@@ -24,11 +30,11 @@ const styles = StyleSheet.create({
   },
   buttonStyle: {
     width: 200,
-    height: 80,
+    height: 200,
     backgroundColor: 'lightblue',
     borderWidth: 1,
     borderColor: 'blue',
-    borderRadius: 50,
+    borderRadius: 100,
     justifyContent: 'center',
   },
   text: {
