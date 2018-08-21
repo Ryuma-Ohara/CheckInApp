@@ -1,20 +1,85 @@
 import React from 'react';
-import { StyleSheet, View, Button, Text, TouchableOpacity } from 'react-native';
-import { Constants } from 'expo';
+import { StyleSheet, View, Text, TouchableOpacity, Alert } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 class CheckInScreen extends React.Component {
   static navigationOptions = {
     tabBarIcon: ({ focused, tintColor }) => (
-      <Ionicons name={"ios-checkbox-outline"} size={25} color={tintColor} />
+      <Ionicons name={'ios-log-in'} size={25} color={tintColor} />
     ),
   };
+
+  state = {
+    date: '',
+    time: '',
+  };
+
+  componentDidMount() {
+    this.Clock = setInterval(() => this.GetTime(), 1000);
+  }
+
+  componentWillMount() {
+    clearInterval(this.Clock);
+  }
+
+  GetTime() {
+    let date, day, type, hour, minutes, seconds, fullTime;
+
+    date = new Date();
+    day =
+      date.getFullYear().toString() +
+      '/' +
+      (date.getMonth() + 1).toString() +
+      '/' +
+      date.getDate().toString();
+
+    hour = date.getHours();
+    // if (hour <= 11) {
+    //   type = 'AM';
+    // } else {
+    //   type = 'PM';
+    // }
+
+    // if (hour > 12) {
+    //   hour = hour - 12;
+    // }
+
+    // if (hour === 0) {
+    //   hour = 12;
+    // }
+
+    minutes = date.getMinutes();
+
+    if (minutes < 10) {
+      minutes = '0' + minutes.toString();
+    }
+
+    seconds = date.getSeconds();
+    if (seconds < 10) {
+      seconds = '0' + seconds.toString();
+    }
+
+    fullTime =
+      // type.toString() +
+      // ' ' +
+      hour.toString() + ':' + minutes.toString() + ':' + seconds.toString();
+
+    this.setState({
+      date: day,
+      time: fullTime,
+    });
+  }
+
+  showTime = () => {
+    Alert.alert(`${this.state.date} \n ${this.state.time.toString()}`);
+  };
+
   render() {
     return (
       <View style={styles.container}>
-        <TouchableOpacity
-          style={styles.buttonStyle}
-          onPress={() => console.log('clicked')}>
+        <Text>{this.state.date}</Text>
+        <Text style={styles.timeText}>{this.state.time}</Text>
+        <TouchableOpacity style={styles.buttonStyle} onPress={this.showTime}>
           <Text style={styles.text}>CheckIn</Text>
         </TouchableOpacity>
       </View>
@@ -42,6 +107,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: 'white',
     textAlign: 'center',
+  },
+  timeText: {
+    fontSize: 26,
+    textAlign: 'center',
+    color: 'blue',
+    marginBottom: 20,
   },
 });
 

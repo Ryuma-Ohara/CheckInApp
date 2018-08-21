@@ -1,25 +1,11 @@
 import React from 'react';
-import {
-  StyleSheet,
-  View,
-  FlatList,
-  Text,
-  TouchableOpacity,
-} from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { Constants } from 'expo';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 
 class SettingsScreen extends React.Component {
   static navigationOptions = ({ navigation }) => {
     return {
       headerTitle: 'Settings',
-      tabBarIcon: ({ focused, tintColor }) => (
-        <Ionicons
-          name={`ios-settings${focused ? '' : '-outline'}`}
-          size={25}
-          color={tintColor}
-        />
-      ),
     };
   };
   state = {
@@ -31,12 +17,14 @@ class SettingsScreen extends React.Component {
     return (
       <View style={styles.container}>
         <TouchableOpacity
+          style={styles.buttonStyle}
           onPress={() => this.props.navigation.navigate('destination')}>
-          <Text>Destination</Text>
+          <Text style={styles.text}>Destination</Text>
         </TouchableOpacity>
         <TouchableOpacity
+          style={styles.buttonStyle}
           onPress={() => this.props.navigation.navigate('notification')}>
-          <Text>Notification</Text>
+          <Text style={styles.text}>Notification </Text>
         </TouchableOpacity>
       </View>
     );
@@ -48,6 +36,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     paddingTop: Constants.statusBarHeight,
+    paddingHorizontal: 10,
+  },
+  buttonStyle: {
+    marginBottom: 20,
+  },
+  text: {
+    fontSize: 20,
   },
 });
 

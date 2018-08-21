@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { MapView, Permissions, Location } from 'expo';
 import { Marker } from 'react-native-maps';
@@ -41,8 +41,32 @@ export default class MapScreen extends React.Component {
     this._getLocationAsync();
   }
 
+  getDistance = () => {
+    let currentLa = (this.state.location.coords.latitude * Math.PI) / 180;
+    let currentLo = (this.state.location.coords.longitude * Math.PI) / 180;
+    let targetLa = (this.state.destination.latlng.latitude * Math.PI) / 180;
+    let targetLo = (this.state.destination.latlng.longitude * Math.PI) / 180;
+
+    let equatorRadius = 6378137.0;
+
+    let averageLat = (currentLa - targetLa) / 2;
+    let averageLon = (currentLo - targetLo) / 2;
+    let distance =
+      equatorRadius *
+      2 *
+      Math.asin(
+        Math.sqrt(
+          Math.pow(Math.sin(averageLat), 2) +
+            Math.cos(currentLa) *
+              Math.cos(targetLa) *
+              Math.pow(Math.sin(averageLon), 2)
+        )
+      );
+    return distance / 1000;
+    console.log(distance);
+  };
+
   render() {
-    // console.log(this.state.location.timestamp);
     if (!this.state.location) {
       return <View />;
     }
@@ -65,6 +89,9 @@ export default class MapScreen extends React.Component {
           }}
           title={this.state.destination.title}
         />
+        <Text style={styles.text}>
+          {Math.floor(this.getDistance() * 1000) + 'm'}
+        </Text>
       </MapView>
     );
   }
@@ -76,5 +103,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  text: {
+    marginTop: 20,
+    marginLeft: 20,
   },
 });
