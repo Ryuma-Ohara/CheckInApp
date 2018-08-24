@@ -1,7 +1,9 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Alert } from 'react-native';
+import firebase from 'firebase';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
+let checkinkey, arrival;
 class CheckInScreen extends React.Component {
   static navigationOptions = {
     tabBarIcon: ({ focused, tintColor }) => (
@@ -12,17 +14,30 @@ class CheckInScreen extends React.Component {
   state = {
     date: '',
     time: '',
+    isArrived: false,
+    timeKeys: ['kafjojoa'],
   };
-
-  componentDidMount() {
-    this.Clock = setInterval(() => this.GetTime(), 1000);
-  }
 
   componentWillMount() {
     clearInterval(this.Clock);
+
+    const { currentUser } = firebase.auth();
+    firebase
+      .database()
+      .ref(`/users/${currentUser.uid}/checkinout`)
+      .once('value')
+      .then(snapshot => {
+        arrival = snapshot.child('isArrived').val();
+        console.log(arrival);
+      });
+    this.setState({ isArrived: arrival });
   }
 
-  GetTime() {
+  componentDidMount() {
+    this.Clock = setInterval(() => this.getTime(), 1000);
+  }
+
+  getTime() {
     let date, day, type, hour, minutes, seconds, fullTime;
 
     date = new Date();
@@ -70,16 +85,50 @@ class CheckInScreen extends React.Component {
     });
   }
 
-  showTime = () => {
-    Alert.alert(`${this.state.date} \n ${this.state.time.toString()}`);
+  setTime = (date, time, timeKeys) => {
+    console.log(timeKeys);
+    const { currentUser } = firebase.auth();
+
+    firebase
+      .database()
+      .ref(`/users/${currentUser.uid}/checkinout`)
+      .update({
+        isArrived: true,
+      });
+
+    checkinkey = firebase
+      .database()
+      .ref(`/users/${currentUser.uid}/checkinout/checkin`)
+      .push({
+        date,
+        time,
+      }).key;
+
+    this.setState(prevState => ({
+      timeKeys: [...this.state.timeKeys, checkinkey],
+    }));
+
+    Alert.alert(
+      `${this.state.date} \n ${this.state.time.toString().slice(0, -3)}`
+    );
   };
 
   render() {
+    // console.log(this.state.timeKeys);
     return (
       <View style={styles.container}>
-        <Text>{this.state.date}</Text>
-        <Text style={styles.timeText}>{this.state.time}</Text>
-        <TouchableOpacity style={styles.buttonStyle} onPress={this.showTime}>
+        <Text> {this.state.date} </Text>
+        <Text style={styles.timeText}> {this.state.time} </Text>
+        <TouchableOpacity
+          // disabled={this.state.isArrived ? true : false}
+          style={styles.buttonStyle}
+          onPress={() =>
+            this.setTime(
+              this.state.date,
+              this.state.time.slice(0, -3),
+              this.state.timekeys
+            )
+          }>
           <Text style={styles.text}>CheckIn</Text>
         </TouchableOpacity>
       </View>

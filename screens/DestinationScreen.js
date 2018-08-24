@@ -7,8 +7,11 @@ import {
   Button,
   TouchableOpacity,
 } from 'react-native';
+import firebase from 'firebase';
 import Expo from 'expo';
-
+// import store from '../redux/store';
+import { connect } from 'react-redux';
+import { setDestination } from '../redux/actions';
 class DestinationScreen extends React.Component {
   static navigationOptions = () => {
     return {
@@ -18,22 +21,13 @@ class DestinationScreen extends React.Component {
 
   state = {
     location: '',
-    destination: {
-      latlng: {
-        latitude: null,
-        longitude: null,
-      },
-      title: '',
-    },
+    title: '',
+    longitude: null,
+    latitude: null,
   };
 
   handleChangeTitle = title => {
-    this.setState({
-      destination: {
-        ...this.state.destination,
-        title,
-      },
-    });
+    this.setState({ title: title });
   };
 
   handleChangeAddress = location => {
@@ -46,18 +40,28 @@ class DestinationScreen extends React.Component {
     try {
       const position = await Expo.Location.geocodeAsync(this.state.location);
       this.setState({
-        destination: {
-          ...this.state.destination,
-          latitude: position[0].latitude,
-          longitude: position[0].longitude,
-        },
+        longitude: position[0].longitude,
+        latitude: position[0].latitude,
       });
+      const { currentUser } = firebase.auth();
+      firebase
+        .database()
+        .ref(`/users/${currentUser.uid}/settings/destination`)
+        .set({
+          title: this.state.title,
+          longitude: position[0].longitude,
+          latitude: position[0].latitude,
+        });
     } catch (err) {
       console.log(err);
     }
   };
 
   render() {
+    console.log(this.state);
+
+    // this.props.destination
+    // this.props.setDestinattion({})
     return (
       <View style={styles.container}>
         <Text style={styles.text}>Name of the destination</Text>
@@ -119,3 +123,11 @@ const styles = StyleSheet.create({
 });
 
 export default DestinationScreen;
+
+// const mapStateToProps = state => ({
+//   destination: state.destination,
+// });
+// export default connect(
+//   mapStateToProps,
+//   { setDestination }
+// )(DestinationScreen);

@@ -7,7 +7,8 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import { Constants } from 'expo';
+import firebase from 'firebase';
+// import { Constants } from 'expo';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 class CheckOutScreen extends React.Component {
@@ -20,17 +21,27 @@ class CheckOutScreen extends React.Component {
   state = {
     date: '',
     time: '',
+    isArrived: true,
   };
 
   componentDidMount() {
-    this.Clock = setInterval(() => this.GetTime(), 1000);
+    this.Clock = setInterval(() => this.getTime(), 1000);
+
+    // const { currentUser } = firebase.auth();
+    // const isArrived = firebase
+    //   .database()
+    //   .ref(`/users/${currentUser.uid}/checkinout`)
+    //   .once('value');
+    // this.setState({
+    //   isArrived,
+    // });
   }
 
   componentWillMount() {
     clearInterval(this.Clock);
   }
 
-  GetTime() {
+  getTime() {
     let date, day, type, hour, minutes, seconds, fullTime;
 
     date = new Date();
@@ -42,21 +53,22 @@ class CheckOutScreen extends React.Component {
       date.getDate().toString();
 
     hour = date.getHours();
-    if (hour <= 11) {
-      type = 'AM';
-    } else {
-      type = 'PM';
-    }
+    // if (hour <= 11) {
+    //   type = 'AM';
+    // } else {
+    //   type = 'PM';
+    // }
 
-    if (hour > 12) {
-      hour = hour - 12;
-    }
+    // if (hour > 12) {
+    //   hour = hour - 12;
+    // }
 
-    if (hour === 0) {
-      hour = 12;
-    }
+    // if (hour === 0) {
+    //   hour = 12;
+    // }
 
     minutes = date.getMinutes();
+
     if (minutes < 10) {
       minutes = '0' + minutes.toString();
     }
@@ -67,13 +79,9 @@ class CheckOutScreen extends React.Component {
     }
 
     fullTime =
-      type.toString() +
-      ' ' +
-      hour.toString() +
-      ':' +
-      minutes.toString() +
-      ':' +
-      seconds.toString();
+      // type.toString() +
+      // ' ' +
+      hour.toString() + ':' + minutes.toString() + ':' + seconds.toString();
 
     this.setState({
       date: day,
@@ -81,8 +89,31 @@ class CheckOutScreen extends React.Component {
     });
   }
 
-  showTime = () => {
-    Alert.alert(`${this.state.date} \n ${this.state.time.toString()}`);
+  setTime = (date, time) => {
+    const { currentUser } = firebase.auth();
+
+    // this.setState({
+    //   isArrived: false,
+    // });
+
+    firebase
+      .database()
+      .ref(`/users/${currentUser.uid}/checkinout`)
+      .update({
+        isArrived: false,
+      });
+
+    firebase
+      .database()
+      .ref(`/users/${currentUser.uid}/checkinout/checkout`)
+      .push({
+        date,
+        time,
+      });
+
+    Alert.alert(
+      `${this.state.date} \n ${this.state.time.toString().slice(0, -3)}`
+    );
   };
 
   render() {
@@ -90,7 +121,12 @@ class CheckOutScreen extends React.Component {
       <View style={styles.container}>
         <Text> {this.state.date} </Text>
         <Text style={styles.timeText}> {this.state.time} </Text>
-        <TouchableOpacity style={styles.buttonStyle} onPress={this.showTime}>
+        <TouchableOpacity
+          disabled={this.state.isArrived ? false : true}
+          style={styles.buttonStyle}
+          onPress={() =>
+            this.setTime(this.state.date, this.state.time.slice(0, -3))
+          }>
           <Text style={styles.text}> CheckOut </Text>
         </TouchableOpacity>
       </View>
